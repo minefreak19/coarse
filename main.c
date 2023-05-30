@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define streq(a, b) (strcmp((a), (b)) == 0)
 
@@ -84,6 +85,7 @@ const char *shift_arg(int *argc, const char ***argv) {
 }
 
 int main(int argc, const char **argv) {
+    srand(time(NULL));
     program_options.program_name = shift_arg(&argc, &argv);
 
     while (argc > 0) {
