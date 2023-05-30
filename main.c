@@ -4,6 +4,16 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#define streq(a, b) (strcmp((a), (b)) == 0)
+
+// Names of boolean flags might have 'no' or 'not' in them so that this
+// structure always contains the default values when zero-initialised.
+struct {
+    const char *program_name;
+    bool no_repeat_on_error;
+} program_options = {0};
 
 const char MC_CHARS[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -60,11 +70,30 @@ bool test_char(char alpha) {
         printf("Correct!\n");
     } else {
         printf("Incorrect: %s\n", expected);
+        if (!program_options.no_repeat_on_error) {
+            printf("Try again...\n");
+            return test_char(alpha);
+        }
     }
     return correct;
 }
 
-int main(void) {
+const char *shift_arg(int *argc, const char ***argv) {
+    assert(*argc > 0);
+    return (*argc)--, *(*argv)++;
+}
+
+int main(int argc, const char **argv) {
+    program_options.program_name = shift_arg(&argc, &argv);
+
+    while (argc > 0) {
+        const char *arg = shift_arg(&argc, &argv);
+
+        if (streq(arg, "--no-repeat")) {
+            program_options.no_repeat_on_error = true;
+        }
+    }
+
     while (true) {
         size_t i = rand_range(0, MC_CHARS_COUNT);
         char alpha = MC_CHARS[i];
